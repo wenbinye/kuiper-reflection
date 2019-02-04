@@ -61,7 +61,7 @@ abstract class TypeUtils
      */
     public static function parse(string $typeString): ReflectionTypeInterface
     {
-        if (strpos($typeString, '|') !== false) {
+        if (false !== strpos($typeString, '|')) {
             return new CompositeType(array_map(function ($typeString) {
                 return ReflectionType::forName($typeString);
             }, explode('|', $typeString)));
@@ -101,7 +101,7 @@ abstract class TypeUtils
     public static function isCompound(ReflectionTypeInterface $type): bool
     {
         if ($type instanceof ArrayType) {
-            return (string) $type == 'array';
+            return 'array' == (string) $type;
         } else {
             return $type instanceof ObjectType
                 || $type instanceof CallableType
@@ -139,6 +139,7 @@ abstract class TypeUtils
     public static function isNullable(ReflectionTypeInterface $type): bool
     {
         if (self::isComposite($type)) {
+            /** @var CompositeType $type */
             foreach ($type->getTypes() as $subType) {
                 if (self::isNull($subType)) {
                     return true;
@@ -230,7 +231,7 @@ abstract class TypeUtils
     public static function describe($value)
     {
         $type = gettype($value);
-        if ($type === 'object') {
+        if ('object' === $type) {
             return get_class($value);
         } elseif (in_array($type, ['array', 'resource', 'unknown type'])) {
             return $type;

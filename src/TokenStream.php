@@ -2,14 +2,13 @@
 
 namespace kuiper\reflection;
 
-use Iterator;
 use kuiper\reflection\exception\InvalidTokenException;
 use kuiper\reflection\exception\TokenStoppedException;
 
 class TokenStream
 {
     /**
-     * @var Iterator
+     * @var \Iterator
      */
     private $tokens;
 
@@ -37,6 +36,8 @@ class TokenStream
      * Gets next token.
      *
      * @return array|string
+     *
+     * @throws TokenStoppedException
      */
     public function next()
     {
@@ -79,6 +80,9 @@ class TokenStream
 
     /**
      * Skips whitespace or comment.
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
      */
     public function skipWhitespaceAndCommentMaybe()
     {
@@ -90,6 +94,9 @@ class TokenStream
      * Stops when first token that is not whitespace or comment.
      *
      * @param bool $required
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
      */
     public function skipWhitespaceAndComment(bool $required = true)
     {
@@ -114,6 +121,7 @@ class TokenStream
      * @return string
      *
      * @throws InvalidTokenException if there not identifier at current position
+     * @throws TokenStoppedException
      */
     public function matchIdentifier(): string
     {
@@ -139,6 +147,9 @@ class TokenStream
      *
      * @return array the import type is the first element: T_FUNCTION, T_CONST, T_STRING (class),
      *               the import list is the second element
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
      */
     public function matchUseStatement()
     {
@@ -157,6 +168,15 @@ class TokenStream
         return [$importType, $imports];
     }
 
+    /**
+     * @param string $stopToken
+     * @param bool   $hasSubList
+     *
+     * @return array
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
+     */
     private function matchImportList(string $stopToken, $hasSubList = true)
     {
         $imports = [];
@@ -171,7 +191,7 @@ class TokenStream
                 $imports[$alias] = $name;
             }
             $this->skipWhitespaceAndCommentMaybe();
-            if ($this->current === ',') {
+            if (',' === $this->current) {
                 $this->next();
                 $this->skipWhitespaceAndCommentMaybe();
             } elseif ($this->current === $stopToken) {
@@ -185,11 +205,19 @@ class TokenStream
         return $imports;
     }
 
+    /**
+     * @param bool $hasSubList
+     *
+     * @return array
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
+     */
     private function matchUseList(bool $hasSubList)
     {
         $imports = [];
         $name = $this->matchIdentifier();
-        if ($this->current === '{') {
+        if ('{' === $this->current) {
             if (!$hasSubList) {
                 throw new InvalidTokenException('Unexpected token');
             }
@@ -201,11 +229,11 @@ class TokenStream
             }
         } else {
             $this->skipWhitespaceAndCommentMaybe();
-            if (is_array($this->current) && $this->current[0] === T_AS) {
+            if (is_array($this->current) && T_AS === $this->current[0]) {
                 $this->next();
                 $this->skipWhitespaceAndComment();
                 $alias = $this->matchIdentifier();
-                if (strpos($alias, ReflectionFile::NAMESPACE_SEPARATOR) !== false) {
+                if (false !== strpos($alias, ReflectionFile::NAMESPACE_SEPARATOR)) {
                     throw new InvalidTokenException("import alias '{$alias}' cannot contain namespace separator");
                 }
             } else {
@@ -219,17 +247,20 @@ class TokenStream
 
     /**
      * match begin and end of parentheses.
+     *
+     * @throws TokenStoppedException
+     * @throws InvalidTokenException
      */
     public function matchParentheses()
     {
         $stack = [];
         while (true) {
             $this->next();
-            if (is_array($this->current) && $this->current[0] == T_CURLY_OPEN) {
+            if (is_array($this->current) && T_CURLY_OPEN == $this->current[0]) {
                 $stack[] = '{';
-            } elseif ($this->current === '{') {
+            } elseif ('{' === $this->current) {
                 $stack[] = '{';
-            } elseif ($this->current === '}') {
+            } elseif ('}' === $this->current) {
                 array_pop($stack);
                 if (empty($stack)) {
                     break;

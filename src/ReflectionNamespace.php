@@ -2,9 +2,7 @@
 
 namespace kuiper\reflection;
 
-use kuiper\reflection\exception\SyntaxErrorException;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use kuiper\reflection\exception\ReflectionException;
 
 class ReflectionNamespace implements ReflectionNamespaceInterface
 {
@@ -61,17 +59,17 @@ class ReflectionNamespace implements ReflectionNamespaceInterface
         $seen = [];
         foreach ($this->dirs as $dir) {
             $dir = realpath($dir);
-            if ($dir === false) {
+            if (false === $dir) {
                 continue;
             }
             if (isset($seen[$dir])) {
                 continue;
             }
             $seen[$dir] = true;
-            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+            $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             foreach ($it as $file => $fileInfo) {
                 $name = $fileInfo->getFilename();
-                if ($name[0] == '.') {
+                if ('.' == $name[0]) {
                     continue;
                 }
                 if (!in_array($fileInfo->getExtension(), $this->extensions)) {
@@ -80,11 +78,11 @@ class ReflectionNamespace implements ReflectionNamespaceInterface
                 $reflectionFile = $this->reflectionFileFactory->create($file);
                 try {
                     foreach ($reflectionFile->getClasses() as $class) {
-                        if (strpos($class, $this->namespace) === 0) {
+                        if (0 === strpos($class, $this->namespace)) {
                             $classes[] = $class;
                         }
                     }
-                } catch (SyntaxErrorException $e) {
+                } catch (ReflectionException $e) {
                     trigger_error($e->getMessage());
                 }
             }

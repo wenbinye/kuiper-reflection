@@ -83,11 +83,7 @@ class ReflectionFile implements ReflectionFileInterface
     }
 
     /**
-     * Gets all traits defined in the file.
-     *
-     * @return string[]
-     *
-     * @throws exception\SyntaxErrorException
+     * {@inheritdoc}
      */
     public function getTraits(): array
     {
@@ -126,18 +122,25 @@ class ReflectionFile implements ReflectionFileInterface
         return $this->getImported($namespace, T_CONST);
     }
 
+    /**
+     * @throws FileNotFoundException
+     * @throws SyntaxErrorException
+     */
     private function parse()
     {
         if (isset($this->namespaces)) {
             return;
         }
         $code = file_get_contents($this->file);
-        if ($code === false) {
+        if (false === $code) {
             throw new FileNotFoundException("Cannot read file '{$this->file}'");
         }
         $tokens = new TokenStream(token_get_all($code));
 
         $this->namespaces = [];
+        $this->classes = [];
+        $this->traits = [];
+        $this->imports = [];
         $this->currentNamespace = '';
         $this->multipleClasses = $this->detectMultipleClasses($code);
 
@@ -185,18 +188,34 @@ class ReflectionFile implements ReflectionFileInterface
         }
     }
 
+    /**
+     * @param TokenStream $tokens
+     *
+     * @return string
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
+     */
     private function matchNamespace(TokenStream $tokens)
     {
         $tokens->next();
         $tokens->skipWhitespaceAndCommentMaybe();
         $token = $tokens->current();
-        if ($token == '{') {
+        if ('{' == $token) {
             return '';
         } else {
             return $tokens->matchIdentifier();
         }
     }
 
+    /**
+     * @param TokenStream $tokens
+     *
+     * @return string
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
+     */
     private function matchClass(TokenStream $tokens)
     {
         $tokens->next();
@@ -209,6 +228,12 @@ class ReflectionFile implements ReflectionFileInterface
         return $this->currentNamespace ? $this->currentNamespace.self::NAMESPACE_SEPARATOR.$class : $class;
     }
 
+    /**
+     * @param TokenStream $tokens
+     *
+     * @throws InvalidTokenException
+     * @throws TokenStoppedException
+     */
     private function matchUse(TokenStream $tokens)
     {
         list($type, $stmtImports) = $tokens->matchUseStatement();

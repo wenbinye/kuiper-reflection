@@ -46,6 +46,6 @@ class ArrayType extends ReflectionType
 
     public function __toString(): string
     {
-        return $this->dimension == 1 && $this->valueType instanceof MixedType ? 'array' : $this->getName();
+        return 1 == $this->dimension && $this->valueType instanceof MixedType ? 'array' : $this->getName();
     }
 }

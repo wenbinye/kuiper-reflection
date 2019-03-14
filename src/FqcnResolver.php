@@ -57,6 +57,6 @@ class FqcnResolver
 
     private function isFqcn($name)
     {
-        return $name[0] === self::NAMESPACE_SEPARATOR;
+        return self::NAMESPACE_SEPARATOR === $name[0];
     }
 }

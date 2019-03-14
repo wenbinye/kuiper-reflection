@@ -15,7 +15,7 @@ class BooleanTypeFilter implements TypeFilterInterface
      */
     public function validate($value)
     {
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
+        return null !== filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 
     /**

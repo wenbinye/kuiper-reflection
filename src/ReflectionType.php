@@ -55,7 +55,7 @@ abstract class ReflectionType implements ReflectionTypeInterface
 
             return new ArrayType(self::forName(substr($type, 0, -1 * $suffixLength)), $suffixLength / 2);
         } elseif (preg_match(self::CLASS_NAME_REGEX, $type)) {
-            if ($type == 'array') {
+            if ('array' == $type) {
                 return new ArrayType(new MixedType());
             } elseif (isset(self::$TYPES[$type])) {
                 $className = self::$TYPES[$type];

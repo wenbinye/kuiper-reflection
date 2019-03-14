@@ -59,7 +59,7 @@ class ReflectionNamespaceFactory implements ReflectionNamespaceFactoryInterface
         } else {
             $dirs = [];
             foreach ($this->namespaceDirs as $prefix => $prefixDirs) {
-                if (empty($prefix) || strpos($namespace, $prefix) === 0) {
+                if (empty($prefix) || 0 === strpos($namespace, $prefix)) {
                     foreach (array_keys($prefixDirs) as $dir) {
                         $dir .= '/'.str_replace('\\', '/', substr($namespace, strlen($prefix)));
                         $dirs[] = $dir;

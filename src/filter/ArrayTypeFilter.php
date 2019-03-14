@@ -53,7 +53,7 @@ class ArrayTypeFilter implements TypeFilterInterface
         if (!is_array($value)) {
             return false;
         }
-        if ($dimension == 1) {
+        if (1 == $dimension) {
             foreach ($value as $item) {
                 if (!TypeUtils::validate($valueType, $item)) {
                     return false;
@@ -74,7 +74,7 @@ class ArrayTypeFilter implements TypeFilterInterface
     {
         $result = [];
         $value = (array) $value;
-        if ($dimension == 1) {
+        if (1 == $dimension) {
             foreach ($value as $key => $item) {
                 $result[$key] = TypeUtils::sanitize($valueType, $item);
             }

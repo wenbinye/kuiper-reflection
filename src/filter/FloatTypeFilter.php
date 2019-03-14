@@ -15,7 +15,7 @@ class FloatTypeFilter implements TypeFilterInterface
      */
     public function validate($value)
     {
-        return filter_var($value, FILTER_VALIDATE_FLOAT) !== false;
+        return false !== filter_var($value, FILTER_VALIDATE_FLOAT);
     }
 
     /**

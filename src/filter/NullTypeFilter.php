@@ -15,7 +15,7 @@ class NullTypeFilter implements TypeFilterInterface
      */
     public function validate($value)
     {
-        return $value === null;
+        return null === $value;
     }
 
     /**

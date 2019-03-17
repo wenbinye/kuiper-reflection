@@ -5,7 +5,7 @@ namespace kuiper\reflection;
 use kuiper\reflection\type\CompositeType;
 use kuiper\reflection\type\IntegerType;
 
-class TypeUtilsTest extends \PHPUnit_Framework_TestCase
+class TypeUtilsTest extends \PHPUnit\Framework\TestCase
 {
     public function testParse()
     {

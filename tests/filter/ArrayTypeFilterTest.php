@@ -4,7 +4,7 @@ namespace kuiper\reflection\filter;
 
 use kuiper\reflection\ReflectionType;
 
-class ArrayTypeFilterTest extends \PHPUnit_Framework_TestCase
+class ArrayTypeFilterTest extends \PHPUnit\Framework\TestCase
 {
     public function testValidate()
     {

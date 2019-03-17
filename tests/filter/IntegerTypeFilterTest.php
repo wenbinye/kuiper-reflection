@@ -2,7 +2,7 @@
 
 namespace kuiper\reflection\filter;
 
-class IntegerTypeFilterTest extends \PHPUnit_Framework_TestCase
+class IntegerTypeFilterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider valuesForValidate

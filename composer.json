@@ -10,9 +10,6 @@
             "email": "wenbinye@163.com"
         }
     ],
-    "support": {
-        "source" : "git@git.cuntutu.com:kuiper/reflection.git"
-    },
     "require": {
         "php": ">= 7.0"
     },
@@ -25,5 +22,8 @@
         "psr-4": {
             "kuiper\\reflection\\": "tests/"
         }
+    },
+    "extra": {
+        "source" : "git@git.cuntutu.com:kuiper/reflection.git"
     }
 }

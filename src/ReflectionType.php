@@ -63,17 +63,15 @@ abstract class ReflectionType implements ReflectionTypeInterface
      * Parses type string to type object.
      *
      * @param string $type
+     * @param bool   $allowsNull
      *
      * @return ReflectionTypeInterface
-     *
-     * @throws \InvalidArgumentException if type is not valid
      */
-    public static function forName(string $type): ReflectionTypeInterface
+    public static function forName(string $type, $allowsNull = false): ReflectionTypeInterface
     {
         if (empty($type)) {
             throw new \InvalidArgumentException('Expected an type string, got empty string');
         }
-        $allowsNull = false;
         if ('?' == $type[0]) {
             $type = substr($type, 1);
             $allowsNull = true;

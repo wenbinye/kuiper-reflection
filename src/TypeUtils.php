@@ -134,27 +134,6 @@ abstract class TypeUtils
     /**
      * @param ReflectionTypeInterface $type
      *
-     * @return bool return true if the type can be null
-     */
-    public static function isNullable(ReflectionTypeInterface $type): bool
-    {
-        if (self::isComposite($type)) {
-            /** @var CompositeType $type */
-            foreach ($type->getTypes() as $subType) {
-                if (self::isNull($subType)) {
-                    return true;
-                }
-            }
-
-            return false;
-        } else {
-            return self::isNull($type);
-        }
-    }
-
-    /**
-     * @param ReflectionTypeInterface $type
-     *
      * @return bool return true if the type is resource type
      */
     public static function isResource(ReflectionTypeInterface $type): bool
@@ -250,6 +229,9 @@ abstract class TypeUtils
      */
     public static function validate(ReflectionTypeInterface $type, $value)
     {
+        if (!isset($value) && $type->allowsNull()) {
+            return true;
+        }
         $filter = self::createFilter($type);
 
         return $filter ? $filter->validate($value) : true;
@@ -265,6 +247,9 @@ abstract class TypeUtils
      */
     public static function sanitize(ReflectionTypeInterface $type, $value)
     {
+        if (!isset($value) && $type->allowsNull()) {
+            return null;
+        }
         $filter = self::createFilter($type);
 
         return $filter ? $filter->sanitize($value) : $value;

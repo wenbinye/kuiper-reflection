@@ -14,6 +14,7 @@ class CompositeType extends ReflectionType
 
     public function __construct(array $types)
     {
+        parent::__construct(false);
         $this->types = $types;
     }
 
@@ -27,6 +28,17 @@ class CompositeType extends ReflectionType
         return implode('|', array_map(function (ReflectionTypeInterface $type) {
             return $type->getName();
         }, $this->types));
+    }
+
+    public function allowsNull(): bool
+    {
+        foreach ($this->types as $type) {
+            if ($type->allowsNull()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function __toString(): string

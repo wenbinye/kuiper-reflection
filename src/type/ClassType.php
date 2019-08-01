@@ -11,8 +11,9 @@ class ClassType extends ReflectionType
      */
     private $className;
 
-    public function __construct($className)
+    public function __construct($className, $allowsNull = false)
     {
+        parent::__construct($allowsNull);
         $this->className = $className;
     }
 

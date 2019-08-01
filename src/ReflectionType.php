@@ -37,6 +37,29 @@ abstract class ReflectionType implements ReflectionTypeInterface
     private static $SINGLETONS = [];
 
     /**
+     * @var bool
+     */
+    private $allowsNull;
+
+    /**
+     * ReflectionType constructor.
+     *
+     * @param bool $allowsNull
+     */
+    public function __construct(bool $allowsNull = false)
+    {
+        $this->allowsNull = $allowsNull;
+    }
+
+    /**
+     * @return bool
+     */
+    public function allowsNull(): bool
+    {
+        return $this->allowsNull;
+    }
+
+    /**
      * Parses type string to type object.
      *
      * @param string $type
@@ -50,26 +73,43 @@ abstract class ReflectionType implements ReflectionTypeInterface
         if (empty($type)) {
             throw new \InvalidArgumentException('Expected an type string, got empty string');
         }
+        $allowsNull = false;
+        if ('?' == $type[0]) {
+            $type = substr($type, 1);
+            $allowsNull = true;
+        }
+
         if (preg_match('/(\[\])+$/', $type, $matches)) {
             $suffixLength = strlen($matches[0]);
 
-            return new ArrayType(self::forName(substr($type, 0, -1 * $suffixLength)), $suffixLength / 2);
+            return new ArrayType(self::forName(substr($type, 0, -1 * $suffixLength)), $suffixLength / 2, $allowsNull);
         } elseif (preg_match(self::CLASS_NAME_REGEX, $type)) {
-            if ('array' == $type) {
-                return new ArrayType(new MixedType());
-            } elseif (isset(self::$TYPES[$type])) {
-                $className = self::$TYPES[$type];
-                if (!isset(self::$SINGLETONS[$className])) {
-                    self::$SINGLETONS[$className] = new $className();
-                }
-
-                return self::$SINGLETONS[$className];
-            } else {
-                return new ClassType($type);
-            }
+            return self::getSingletonType($type, $allowsNull);
         } else {
             throw new \InvalidArgumentException("Expected an type string, got '{$type}'");
         }
+    }
+
+    private static function getSingletonType($typeName, $allowsNull)
+    {
+        if (!isset(self::$SINGLETONS[$typeName][$allowsNull])) {
+            if ('array' == $typeName) {
+                $type = new ArrayType(new MixedType(), 1, $allowsNull);
+            } elseif (isset(self::$TYPES[$typeName])) {
+                $className = self::$TYPES[$typeName];
+                $type = new $className($allowsNull);
+            } else {
+                $type = new ClassType($typeName, $allowsNull);
+            }
+            self::$SINGLETONS[$typeName][$allowsNull] = $type;
+        }
+
+        return self::$SINGLETONS[$typeName][$allowsNull];
+    }
+
+    protected function getDisplayString()
+    {
+        return $this->getName();
     }
 
     /**
@@ -77,6 +117,6 @@ abstract class ReflectionType implements ReflectionTypeInterface
      */
     public function __toString(): string
     {
-        return $this->getName();
+        return ($this->allowsNull() ? '?' : '').$this->getDisplayString();
     }
 }
